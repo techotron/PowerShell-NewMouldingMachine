@@ -32,7 +32,7 @@ function new-mouldingMachine {
             -Department "Production Workflow System" `
             -Enabled:$true `
             -Path "OU=Production Workflow System,OU=Manchester,OU=Sites,OU=HT,DC=Hellermanntytongroup,DC=com" `
-            -AccountPassword (convertto-securestring -asplaintext "Password01" -force)
+            -AccountPassword (convertto-securestring -asplaintext "SomePassword" -force)
 
             # Add new user to standard groups
             foreach ($grp in $groupMembership) {
@@ -60,7 +60,7 @@ function new-mouldingMachine {
             -Department "Production Workflow System" `
             -Enabled:$true `
             -Path "OU=Production Workflow System,OU=Manchester,OU=Sites,OU=HT,DC=Hellermanntytongroup,DC=com" `
-            -AccountPassword (convertto-securestring -asplaintext "Password01" -force)
+            -AccountPassword (convertto-securestring -asplaintext "SomePassword" -force)
 
             # Add new user to standard groups
             foreach ($grp in $groupMembership) {
