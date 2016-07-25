@@ -1,4 +1,7 @@
 import-module remotedesktop, activedirectory
+
+# =============================================== New-MouldingMachine Function ==============================================================================
+
 $groupMembership = @("Production Workflow System Users", "RDS_pirana-users", "RDS_sharepoint-users")
 
 function new-mouldingMachine {
@@ -8,6 +11,7 @@ function new-mouldingMachine {
         [switch]$configureRDS
     )
 
+    # Test if AD account exists
     try {
     
         $a = get-aduser -Identity $name
@@ -32,7 +36,8 @@ function new-mouldingMachine {
             -Department "Production Workflow System" `
             -Enabled:$true `
             -Path "OU=Production Workflow System,OU=Manchester,OU=Sites,OU=HT,DC=Hellermanntytongroup,DC=com" `
-            -AccountPassword (convertto-securestring -asplaintext "SomePassword" -force)
+            -PasswordNeverExpires:$true `
+            -AccountPassword (convertto-securestring -asplaintext "Password01" -force)
 
             # Add new user to standard groups
             foreach ($grp in $groupMembership) {
@@ -60,7 +65,8 @@ function new-mouldingMachine {
             -Department "Production Workflow System" `
             -Enabled:$true `
             -Path "OU=Production Workflow System,OU=Manchester,OU=Sites,OU=HT,DC=Hellermanntytongroup,DC=com" `
-            -AccountPassword (convertto-securestring -asplaintext "SomePassword" -force)
+            -PasswordNeverExpires:$true `
+            -AccountPassword (convertto-securestring -asplaintext "Password01" -force)
 
             # Add new user to standard groups
             foreach ($grp in $groupMembership) {
@@ -76,4 +82,42 @@ function new-mouldingMachine {
 
     }
 
+}
+
+
+# =============================================== Remove-MouldingMachine Function ===========================================================================
+
+function remove-mouldingMachine {
+
+    param(
+        [string]$name,
+        [switch]$removeRDS
+    )
+
+        # Test if AD account exists
+    try {
+    
+        $sam = (get-aduser -Identity $name).samaccountname
+
+        if (!($removeRDS)) {
+
+            write-host "Removing AD account: $sam"
+            Remove-ADUser -Identity $sam -Confirm:$false
+
+        }
+
+        if ($removeRDS) {
+
+            write-host "Removing AD account: $sam and published app: z_$sam"
+            Remove-ADUser -Identity $sam -Confirm:$false
+            Remove-RDRemoteApp -CollectionName "remote apps" -ConnectionBroker "rds-gw-serv-2.hellermanntytongroup.com" -Alias "z_$sam" -Confirm:$false -force
+
+        }
+
+        
+    } catch {
+
+        write-warning "An account for $name wasn't found in AD!"
+
+    }
 }
